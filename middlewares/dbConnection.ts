@@ -1,8 +1,9 @@
 import type { NextApiRequest, NextApiResponse, NextApiHandler } from 'next'
 import mongoose from 'mongoose'
+import responseMessage from '../@types/responseMessage'
 
-export const connectMongoDB = (handler: NextApiHandler) => {
-  async (req: NextApiRequest, res: NextApiResponse) => {
+const connectMongoDB = (handler: NextApiHandler) => 
+  async (req: NextApiRequest, res: NextApiResponse<responseMessage>) => {
     // Verifica se o banco está conectado
     if(mongoose.connections[0].readyState) {
       return handler(req, res)
@@ -13,7 +14,7 @@ export const connectMongoDB = (handler: NextApiHandler) => {
 
     // Env vazio, avisa o programador
     if(!DB_CONNECTION_STRING) {
-      return res.status(500).json({ erro: 'Env de configuração do db não informado' })
+      return res.status(500).json({ error: 'Env de configuração do db não informado' })
     }
 
     mongoose.connection.on('Connected', () => {
@@ -29,4 +30,5 @@ export const connectMongoDB = (handler: NextApiHandler) => {
     // Conectado, retorna aos endpoints da aplicação
     return handler(req, res)
   }
-}
+
+export default connectMongoDB
